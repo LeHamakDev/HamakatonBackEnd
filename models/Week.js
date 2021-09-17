@@ -12,6 +12,10 @@ const WeekModel = mongoose.Schema({
     theme3:{
         type:Object,
         default:{idT:null,votes:0}
+    },
+    timestamp:{
+        type:Number,
+        required:true
     }
 })
 

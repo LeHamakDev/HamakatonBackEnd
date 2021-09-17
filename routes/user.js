@@ -10,6 +10,15 @@ var token = function() {
     return rand() + rand();
 };
 
+async function mySaver(s) {
+    try {
+        const save = await s.save()
+        return(save)
+    } catch(err) {
+        return({message:err})
+    }
+}
+
 router.post('/login', async (req, res) => {
    if (req.body.login.includes("@")) {
         try {
@@ -39,12 +48,7 @@ router.post('/register', async (req, res) => {
         pseudo:req.body.pseudo,
         email:req.body.email
     })
-    try {
-        const save = await user.save()
-        res.json(save)
-    } catch(err) {
-        res.json({message:err})
-    }
+    res.json(await mySaver(user))
 });
 
 module.exports = router;

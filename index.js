@@ -17,7 +17,11 @@ app.use(bodyParser.json());
 //ROUTES
 
 const userRoute = require("./routes/user")
+const weekRoute = require("./routes/week")
+const themeRoute = require("./routes/theme")
 app.use("/user", userRoute)
+app.use("/week", weekRoute)
+app.use("/theme", themeRoute)
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)

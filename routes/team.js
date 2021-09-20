@@ -33,11 +33,20 @@ router.post('/join', async (req,res) => {
         }
     }
 })
-//WIP WIP WIP
+
 router.post("/kick", async (req,res)=> {
     const team = await Team.findById(req.body.id)
     if (team.teamLeader == req.body.teamLeaderID) {
-
+        const teamLeader = await User.findById(req.body.teamLeaderID)
+        if (teamLeader.token == req.body.token) {
+            const index = team.members.indexOf(req.body.memberID);
+            if (index > -1) {
+                team.members.splice(index, 1);
+                res.json({succes:true, message:"Kicked!"})
+            }
+        } else {
+            res.json({succes:false,message:"Wrong token"})
+        }
     } else {
         res.json({succes:false,message:"Tu n'es pas le team leader"})
     }

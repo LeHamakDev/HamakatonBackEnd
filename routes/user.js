@@ -19,6 +19,16 @@ async function mySaver(s) {
     }
 }
 
+router.post("/updateRole", async (req, res) => {
+    try {
+        const user = await User.findOne({token:req.body.token})
+        await user.updateOne({role:req.body.role})
+        res.json({success:true, message:"Role up"})
+    } catch(e) {
+        res.json({success:false, message:"err"})
+    }
+})
+
 router.get('/list', async (req, res) => {
     try {
         const users = await User.find()

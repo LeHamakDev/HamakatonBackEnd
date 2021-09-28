@@ -15,7 +15,7 @@ const WeekModel = mongoose.Schema({
     },
     timestamp:{
         type:Number,
-        required:true
+        required:true()
     }
 })
 

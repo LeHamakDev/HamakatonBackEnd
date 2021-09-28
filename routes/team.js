@@ -19,6 +19,15 @@ var token = function() {
     return rand() + rand();
 };
 
+router.get('/list', async (req, res) => {
+    try {
+        const teams = await Team.find({}, {name:1, teamLeader:1, id:1})
+        res.json(teams)
+    } catch(e) {
+        res.json({message:e})
+    }
+})
+
 router.post('/join', async (req,res) => {
     const team = await Team.findOne({invitationLink:req.body.token})
     if(!team) {

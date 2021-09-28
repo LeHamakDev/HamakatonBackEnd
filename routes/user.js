@@ -19,6 +19,15 @@ async function mySaver(s) {
     }
 }
 
+router.get('/list', async (req, res) => {
+    try {
+        const users = await User.find()
+        res.json(users)
+    } catch(e) {
+        res.json({message:e})
+    }
+})
+
 router.post('/login', async (req, res) => {
    if (req.body.login.includes("@")) {
         try {

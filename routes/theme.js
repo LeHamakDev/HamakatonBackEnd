@@ -11,6 +11,15 @@ async function mySaver(s) {
     }
 }
 
+router.get("/list", async (req, res) => {
+    try {
+        const themes = await Theme.find()
+        res.json(themes)
+    } catch(e) {
+        res.json({message:e})
+    }
+})
+
 router.post("/newTheme", async (req, res) => {
     const theme = new Theme({
         name:req.body.name,

@@ -10,6 +10,16 @@ var token = function() {
     return rand() + rand();
 };
 
+async function verifyToken(token) {
+    try {
+        const user = await User.findOne({token:token})
+        return user
+    } catch (error) {
+        console.log("error", error)
+        return null
+    }
+}
+
 async function mySaver(s) {
     try {
         const save = await s.save()
@@ -21,7 +31,7 @@ async function mySaver(s) {
 
 router.post("/updateRole", async (req, res) => {
     try {
-        const user = await User.findOne({token:req.body.token})
+        const user = await verifyToken(req.body.token)
         await user.updateOne({role:req.body.role})
         res.json({success:true, message:"Role up"})
     } catch(e) {
@@ -30,11 +40,16 @@ router.post("/updateRole", async (req, res) => {
 })
 
 router.get('/list', async (req, res) => {
-    try {
-        const users = await User.find()
-        res.json(users)
-    } catch(e) {
-        res.json({message:e})
+    const user = await verifyToken(req.body.token)
+    if (user) {
+        try {
+            const users = await User.find({}, {pseudo:1, role:1, description:1})
+            res.json(users)
+        } catch(e) {
+            res.json({message:e})
+        }
+    } else {
+        res.json({success:false, message:"Bad Token"})
     }
 })
 

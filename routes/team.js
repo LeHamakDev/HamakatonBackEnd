@@ -69,11 +69,16 @@ router.get('/invite/:id', async (req, res) => {
 });
 
 router.post('/newTeam', async (req, res) => {
-    const team = new Team({
-        name:req.body.name,
-        teamLeader:req.body.teamLeader
-    })
-    res.json(await mySaver(team))
+    try {
+        const team = new Team({
+            name:req.body.name,
+            teamLeader:req.body.teamLeader
+        })
+        res.json(await mySaver(team))
+    } catch (error) {
+        res.json({succes:false,message:err})
+    }
+    
 });
 
 module.exports = router

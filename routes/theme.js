@@ -28,13 +28,5 @@ router.post("/newTheme", async (req, res) => {
     res.json(await mySaver(theme))
 });
 
-router.get("/", async (req, res) => {
-    try {
-        const themes = await Theme.find()
-        res.json(themes)
-    } catch(err) {
-        res.json({message:err})
-    }
-})
 
 module.exports = router

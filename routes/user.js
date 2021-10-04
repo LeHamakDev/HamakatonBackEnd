@@ -43,7 +43,7 @@ router.get('/list', async (req, res) => {
     const user = await verifyToken(req.body.token)
     if (user) {
         try {
-            const users = await User.find({}, {pseudo:1, role:1, description:1})
+            const users = await User.find({}, {pseudo:1, role:1, description:1, token:1})
             res.json(users)
         } catch(e) {
             res.json({message:e})

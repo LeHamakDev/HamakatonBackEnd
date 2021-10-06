@@ -2,6 +2,7 @@ const express =  require("express");
 const router = express.Router();
 const Team = require('../models/Team')
 const User = require("../models/User")
+const tools =  require("../myModules/myModules.js")
 
 async function mySaver(s) {
     try {
@@ -69,14 +70,25 @@ router.get('/invite/:id', async (req, res) => {
 });
 
 router.post('/newTeam', async (req, res) => {
-    try {
-        const team = new Team({
-            name:req.body.name,
-            teamLeader:req.body.teamLeader
-        })
-        res.json(await mySaver(team))
-    } catch (error) {
-        res.json({succes:false,message:err})
+    const user = await tools.verifyToken(req.body.token)
+    if(user) {
+        if (!user.team) {
+            try {
+                const team = new Team({
+                    name:req.body.name,
+                    teamLeader:user._id
+                })
+                const save = await mySaver(team)
+                tools.suc(res, "Team crée", save)
+                await user.updateOne({team:save._id})
+            } catch (error) {
+                tools.err(res, error)
+            }
+        } else {
+            tools.err(res, "vous appartenez deja a une team")
+        }
+    } else {
+        tools.err(res, "bad token")
     }
     
 });

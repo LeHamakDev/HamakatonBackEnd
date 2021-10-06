@@ -2,6 +2,7 @@ const express =  require("express");
 const router = express.Router();
 const Project = require('../models/Project')
 const User = require("../models/User")
+const test =  require("../myModules/myModules.js")
 
 async function verifyToken(token) {
     try {
@@ -13,14 +14,14 @@ async function verifyToken(token) {
     }
 }
 
-async function mySaver(s) {
-    try {
-        const save = await s.save()
-        return(save)
-    } catch(err) {
-        return({message:err})
-    }
-}
+// async function mySaver(s) {
+//     try {
+//         const save = await s.save()
+//         return(save)
+//     } catch(err) {
+//         return({message:err})
+//     }
+// }
 
 router.get("/list", async (req,res)=> {
     try {
@@ -35,12 +36,13 @@ router.post("/postProject", async (req, res) => {
     try {
         const user = await verifyToken(req.body.token)
         if (user) {
+            console.log(user)
             const project = new Project({
                 name:req.body.name,
                 link:req.body.link,
                 relatedTeam:user.team
             })
-            res.json(await mySaver(project))
+            res.json(await test.mySaver(project))
         } else {
             res.json({success:false, message:"Bad token"})
         }

@@ -2,30 +2,27 @@ const express =  require("express");
 const router = express.Router();
 const Theme = require('../models/Theme')
 
-async function mySaver(s) {
-    try {
-        const save = await s.save()
-        return(save)
-    } catch(err) {
-        return({message:err})
-    }
-}
+const tools = require("../myModules/myModules")
 
 router.get("/list", async (req, res) => {
     try {
         const themes = await Theme.find()
-        res.json(themes)
+        tools.suc(res, "Here is your list", themes)
     } catch(e) {
         res.json({message:e})
     }
 })
 
 router.post("/newTheme", async (req, res) => {
-    const theme = new Theme({
-        name:req.body.name,
-        desc:req.body.desc ? req.body.desc : ""
-    })
-    res.json(await mySaver(theme))
+    try {
+        const theme = new Theme({
+            name:req.body.name,
+            desc:req.body.desc ? req.body.desc : ""
+        })
+        tools.suc(res, "Theme Created", await tools.mySaver(theme))
+    } catch (error) {
+        tools.err(res, error)
+    }
 });
 
 

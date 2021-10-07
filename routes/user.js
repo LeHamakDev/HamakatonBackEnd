@@ -40,9 +40,10 @@ router.post('/login', async (req, res) => {
             tools.err(res, err)
         }
    } else {
+       console.log("else")
         try {
             const user = await User.findOne({login:req.body.login, hash:sha256(req.body.password)});
-            user.token = token()
+            user.token = tools.token()
             await user.save()
             tools.suc(res, "Login success", user)
         }catch(err){
@@ -77,4 +78,6 @@ router.post('/register', async (req, res) => {
 });
 
 module.exports = router;
-//sl6r9pzdvzp0gbqw46j6i0j
+//5w9wo3zqsmo4sbey328q0k
+//yumfrbi893pblademwfle7
+//u93tuqo6x4cbb8xd5fw4uc

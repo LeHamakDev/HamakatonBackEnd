@@ -25,4 +25,13 @@ router.get("/getUsers", async (req, res) => {
     }
 })
 
+router.get("/getTeams", async (req, res) => {
+    try {
+        const users = await Team.find()
+        tools.suc(res, null,users)
+    } catch(e) {
+        res.json({success:false, message:"err"})
+    }
+})
+
 module.exports = router;

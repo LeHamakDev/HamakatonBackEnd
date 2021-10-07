@@ -1,53 +1,34 @@
 const express =  require("express");
 const router = express.Router();
 const Project = require('../models/Project')
-const User = require("../models/User")
-const test =  require("../myModules/myModules.js")
+const tools =  require("../myModules/myModules")
 
-async function verifyToken(token) {
-    try {
-        const user = await User.findOne({token:token})
-        return user
-    } catch (error) {
-        console.log("error", error)
-        return null
-    }
-}
-
-// async function mySaver(s) {
-//     try {
-//         const save = await s.save()
-//         return(save)
-//     } catch(err) {
-//         return({message:err})
-//     }
-// }
 
 router.get("/list", async (req,res)=> {
     try {
         const project = await Project.find({},{name:1, description:1,link:1})
-        res.json(project)
+        tools.suc(res,"Here is your list",project)
     } catch (e) {
-        
+        tools.err(res,e)
     }
 })
 
 router.post("/postProject", async (req, res) => {
     try {
-        const user = await verifyToken(req.body.token)
+        const user = await tools.verifyToken(req.body.token)
         if (user) {
-            console.log(user)
             const project = new Project({
                 name:req.body.name,
                 link:req.body.link,
                 relatedTeam:user.team
             })
-            res.json(await test.mySaver(project))
+            await tools.mySaver(project)
+            tools.suc(res, "Project Posted")
         } else {
-            res.json({success:false, message:"Bad token"})
+            tools.suc(res, "Bad token")
         }
     } catch(e) {
-        res.json({success:false, message:"err"})
+        tools.suc(res,e)
     }
 })
 

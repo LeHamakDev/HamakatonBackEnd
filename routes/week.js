@@ -1,7 +1,8 @@
 const express =  require("express");
 const router = express.Router();
 const Week = require('../models/Week')
-const User = require("../models/User")
+const tools = require("../myModules/myModules")
+
 
 async function mySaver(s) {
     try {
@@ -14,7 +15,7 @@ async function mySaver(s) {
 }
 router.post("/vote", async (req,res) => {
     try {
-        const user = await User.findOne({token:req.body.token})
+        const user = await tools.verifyToken(req.body.token)
         if(user) {
             if (user.voted.idS != req.body.weekID) {
                 await user.updateOne({voted:{idS:req.body.weekID, idT:req.body.themeID}})
@@ -30,38 +31,42 @@ router.post("/vote", async (req,res) => {
                         await week.updateOne({theme3:{idT:week.theme3.idT, votes:week.theme3.votes+1}})
                         break;
                     default:
-                        res.json({success:false,message:"err"})
+                        tools.err(res,"err")
                 }
-                res.json({success:true, message:"Voted!"})
+                tools.suc(res,"Voted!")
             } else {
-                res.json({success:false, message:"Vous avez deja voté"})
+                tools.err(res,"already voted")
             }
         } else {
-            res.json({success:false, message:"Invalid Token"})
+            tools.err(res,"invalid token")
         }
     }
     catch(e) {
-        res.json({message:e})
+        tools.err(res,e)
     }
 })
 
 router.get('/list', async (req, res) => {
     try {
         const weeks = await Week.find()
-        res.json(weeks)
+        tools.suc(res, "Here is your list", weeks)
     } catch(e) {
-        res.json({message:e})
+        tools.err(res,e)
     }
 })
 
 router.post('/newWeek', async (req, res) => {
-    const week = new Week({
-        theme1:{idT:req.body.theme1,votes:0},
-        theme2:{idT:req.body.theme2,votes:0},
-        theme3:{idT:req.body.theme3,votes:0},
-        timestamp:req.body.timestamp
-    })
-    res.json(await mySaver(week))
+    try {
+        const week = new Week({
+            theme1:{idT:req.body.theme1,votes:0},
+            theme2:{idT:req.body.theme2,votes:0},
+            theme3:{idT:req.body.theme3,votes:0},
+            timestamp:req.body.timestamp
+        })
+        tools.suc(res, "Week created", await mySaver(week))
+    } catch (error) {
+        tools.err(res, err)
+    }
 });
 
 module.exports = router;

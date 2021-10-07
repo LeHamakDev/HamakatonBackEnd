@@ -1,72 +1,81 @@
 const express =  require("express");
 const router = express.Router();
-const Team = require('../models/Team')
-const User = require("../models/User")
+const Team = require('../models/Team');
+const User = require("../models/User");
 const tools =  require("../myModules/myModules.js")
-
-async function mySaver(s) {
-    try {
-        const save = await s.save()
-        return(save)
-    } catch(err) {
-        return({message:err})
-    }
-}
-
-var rand = function() {
-    return Math.random().toString(36).substr(2);
-};
-var token = function() {
-    return rand() + rand();
-};
 
 router.get('/list', async (req, res) => {
     try {
         const teams = await Team.find({}, {name:1, teamLeader:1, id:1})
-        res.json(teams)
+        tools.suc(res, "Here is your list", teams)
     } catch(e) {
-        res.json({message:e})
+        tools.err(res,e)
     }
 })
 
 router.post('/join', async (req,res) => {
-    const team = await Team.findOne({invitationLink:req.body.token})
-    if(!team) {
-        res.json({succes:false,message:"Invalid Token"})
-    } else {
-        if (team.members.includes(req.body.id)) {
-            res.json({succes:true,message:"Deja enregistré"})
+    try {
+        const user = await tools.verifyToken(req.body.token)
+        const team = await Team.findOne({invitationLink:req.body.teamToken})
+        if (user) {
+            if(!team) {
+                tools.err(res, "Invalid Team Token")
+            } else {
+                if (team.members.includes(user._id)) {
+                    tools.suc(res, "Deja enregistré")
+                } else {
+                    team.members.push(user._id)
+                    const save = await tools.mySaver(team)
+                    await user.updateOne({team:save._id})
+                    tools.suc(res, "Bienvenue dans la team : " + team.name)
+                }
+            }
         } else {
-            team.members.push(req.body.id)
-            await mySaver(team)
-            res.json({succes:true,message:"Bienvenue dans la team : " + team.name})
+            tools.badToken(res)
         }
+    } catch (error) {
+        tools.err(res, error)
     }
+    
 })
 
 router.post("/kick", async (req,res)=> {
-    const team = await Team.findById(req.body.id)
-    if (team.teamLeader == req.body.teamLeaderID) {
-        const teamLeader = await User.findById(req.body.teamLeaderID)
-        if (teamLeader.token == req.body.token) {
+    try {
+        const teamLeader = await tools.verifyToken(req.body.token)
+        const team = await Team.findById(teamLeader.team)
+        const user = await User.findById(req.body.memberID)
+        if (team.teamLeader == teamLeader._id) {
             const index = team.members.indexOf(req.body.memberID);
             if (index > -1) {
-                team.members.splice(index, 1);
-                res.json({succes:true, message:"Kicked!"})
+                var teamMem = team.members
+                teamMem.splice(index, 1)
+                await user.updateOne({team:null})
+                await team.updateOne({members:teamMem})
+                tools.suc(res, "Kicked!")
+            } else {
+                tools.err(res, "This memeber does not exist")
             }
         } else {
-            res.json({succes:false,message:"Wrong token"})
+            tools.err(res, "Tu n'es pas le team leader")
         }
-    } else {
-        res.json({succes:false,message:"Tu n'es pas le team leader"})
+    } catch (error) {
+        tools.err(res, error)
     }
 })
 
-router.get('/invite/:id', async (req, res) => {
-    const team = await Team.findById(req.params.id)
-    team.invitationLink = token()
-    const savedTeam = await mySaver(team)
-    res.json({token:savedTeam.invitationLink})
+router.post('/invite', async (req, res) => {
+    try {
+        const user = await tools.verifyToken(req.body.token)
+        if (user) {
+            const team = await Team.findById(user.team)
+            team.invitationLink = tools.token()
+            const savedTeam = await tools.mySaver(team)
+            tools.suc(res, "Here is your token", {token:savedTeam.invitationLink})
+        }
+    } catch (error) {
+        tools.err(res, error)
+    }
+    
 });
 
 router.post('/newTeam', async (req, res) => {
@@ -76,9 +85,10 @@ router.post('/newTeam', async (req, res) => {
             try {
                 const team = new Team({
                     name:req.body.name,
+                    token:tools.token(),
                     teamLeader:user._id
                 })
-                const save = await mySaver(team)
+                const save = await tools.mySaver(team)
                 tools.suc(res, "Team crée", save)
                 await user.updateOne({team:save._id})
             } catch (error) {
@@ -88,7 +98,7 @@ router.post('/newTeam', async (req, res) => {
             tools.err(res, "vous appartenez deja a une team")
         }
     } else {
-        tools.err(res, "bad token")
+        tools.badToken(res)
     }
     
 });

@@ -18,6 +18,24 @@ module.exports = {
             return null
         }
     },
+
+    mySaver: async function(s) {
+        try {
+            const save = await s.save()
+            return(save)
+        } catch(err) {
+            return({message:err})
+        }
+    },
+
+    token:function() {
+        return Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2)
+    },
+
+    badToken: async function(res) {
+        res.json({success:false, message:"Bad Token"})
+    },
+
     err: function(res, message) {
         res.json({success:false, message:message})
     },

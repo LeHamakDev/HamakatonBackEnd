@@ -3,53 +3,29 @@ const router = express.Router();
 const User = require('../models/User')
 var sha256 = require('js-sha256');
 
-var rand = function() {
-    return Math.random().toString(36).substr(2);
-};
-var token = function() {
-    return rand() + rand();
-};
-
-async function verifyToken(token) {
-    try {
-        const user = await User.findOne({token:token})
-        return user
-    } catch (error) {
-        console.log("error", error)
-        return null
-    }
-}
-
-async function mySaver(s) {
-    try {
-        const save = await s.save()
-        return(save)
-    } catch(err) {
-        return({message:err})
-    }
-}
+const tools = require('../myModules/myModules')
 
 router.post("/updateRole", async (req, res) => {
     try {
-        const user = await verifyToken(req.body.token)
+        const user = await tools.verifyToken(req.body.token)
         await user.updateOne({role:req.body.role})
-        res.json({success:true, message:"Role up"})
+        tools.suc(res, "Role up", null)
     } catch(e) {
-        res.json({success:false, message:"err"})
+        tools.suc(res, e)
     }
 })
 
-router.get('/list', async (req, res) => {
-    const user = await verifyToken(req.body.token)
+router.post('/list', async (req, res) => {
+    const user = await tools.verifyToken(req.body.token)
     if (user) {
         try {
             const users = await User.find({}, {pseudo:1, role:1, description:1, team:1})
-            res.json(users)
+            tools.suc(res, "Here is your list", users)
         } catch(e) {
-            res.json({message:e})
+            tools.err(res, e)
         }
     } else {
-        res.json({success:false, message:"Bad Token"})
+        tools.badToken(res)
     }
 })
 
@@ -57,32 +33,48 @@ router.post('/login', async (req, res) => {
    if (req.body.login.includes("@")) {
         try {
             const user = await User.findOne({email:req.body.login, hash:sha256(req.body.password)});
-            user.token = token()
+            user.token = tools.token()
             await user.save()
-            res.json(user);
+            tools.suc(res, "Login success", user)
         }catch(err){
-            res.json({message:err})
+            tools.err(res, err)
         }
    } else {
         try {
             const user = await User.findOne({login:req.body.login, hash:sha256(req.body.password)});
             user.token = token()
             await user.save()
-            res.json(user);
+            tools.suc(res, "Login success", user)
         }catch(err){
-            res.json({message:err})
+            tools.err(res, err)
         }
    }
 });
 
 router.post('/register', async (req, res) => {
-    const user = new User({
-        login:req.body.login,
-        hash:sha256(req.body.password),
-        pseudo:req.body.pseudo,
-        email:req.body.email
-    })
-    res.json(await mySaver(user))
+    const exUsers = await User.find({ $or: [
+        { email: req.body.email },
+        { login: req.body.login },
+        { pseudo:req.body.pseudo }
+    ]})
+    try {
+        if (exUsers.length == 0) 
+            {
+            const user = new User({
+                login:req.body.login,
+                hash:sha256(req.body.password),
+                pseudo:req.body.pseudo,
+                email:req.body.email
+            })
+            tools.suc(res, "User Created", await tools.mySaver(user))
+          } else {
+            tools.err(res, "Email, pseudo ou login déja existant")
+          }
+    } catch (err) {
+        tools.err(res, err)
+    }
+    
 });
 
 module.exports = router;
+//sl6r9pzdvzp0gbqw46j6i0j

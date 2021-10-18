@@ -10,6 +10,7 @@ module.exports = {
     },
     verifyToken: async function(token) {
         const User = require("../models/User")
+        console.log(token)
         try {
             const user = await User.findOne({token:token})
             return user

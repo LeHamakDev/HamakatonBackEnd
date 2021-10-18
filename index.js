@@ -7,12 +7,14 @@ database.connect()
 
 const bodyParser = require("body-parser")
 const express = require('express')
+const cors = require('cors');
 const app = express()
 const port = 1337
 app.use(bodyParser.urlencoded({
-    extended: true
-  }));
+  extended: true
+}));
 app.use(bodyParser.json());
+app.use(cors())
 
 //ROUTES
 

@@ -29,6 +29,16 @@ router.post('/list', async (req, res) => {
     }
 })
 
+router.post('/loginToken', async (req, res) => {
+    const user = await tools.verifyToken(req.body.token)
+    if (user) {
+        tools.suc(res,"Welcome Back", user)
+    } else {
+        tools.badToken(res)
+    }
+})
+
+
 router.post('/login', async (req, res) => {
    if (req.body.login.includes("@")) {
         try {

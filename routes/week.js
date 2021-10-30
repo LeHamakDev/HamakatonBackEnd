@@ -4,15 +4,7 @@ const Week = require('../models/Week')
 const tools = require("../myModules/myModules")
 
 
-async function mySaver(s) {
-    try {
-        const save = await s.save()
-        return(save)
-    } catch(err) {
-        console.log(err)
-        return({message:err})
-    }
-}
+
 router.post("/vote", async (req,res) => {
     try {
         const user = await tools.verifyToken(req.body.token)
@@ -55,6 +47,15 @@ router.get('/list', async (req, res) => {
     }
 })
 
+router.get("/getLastWeek", async (req, res) => {
+    try {
+        const week = await Week.find().sort({"timestamp":-1}).limit(1);
+        tools.suc(res, "This is the last week", week)
+    } catch (e) {
+        tools.err(res,e)
+    }
+})
+
 router.post('/newWeek', async (req, res) => {
     try {
         const week = new Week({
@@ -63,7 +64,7 @@ router.post('/newWeek', async (req, res) => {
             theme3:{idT:req.body.theme3,votes:0},
             timestamp:req.body.timestamp
         })
-        tools.suc(res, "Week created", await mySaver(week))
+        tools.suc(res, "Week created", await tools.mySaver(week))
     } catch (error) {
         tools.err(res, err)
     }

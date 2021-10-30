@@ -1,12 +1,4 @@
 module.exports = {
-    mySaver: async function(s) {
-        try {
-            const save = await s.save()
-            return(save)
-        } catch(err) {
-            return({success:false,message:err})
-        }
-    },
     verifyToken: async function(token) {
         const User = require("../models/User")
         console.log(token)

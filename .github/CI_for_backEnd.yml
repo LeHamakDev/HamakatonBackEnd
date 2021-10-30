@@ -1,0 +1,25 @@
+name: CI For FrontEnd
+on: [push]
+
+jobs:
+  deploy_job:
+    runs-on: ubuntu-latest
+    name: build&deploy
+    steps:
+      - name: 🧐 Checkout
+        uses: actions/checkout@v2
+
+      - name: 👉😎👈 Install Dependencies
+        run: npm i
+
+      - name: 👉🤓👈 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@4.1.0
+        with:
+          server: 51.91.248.166
+          username: ubuntu
+          password: ${{ secrets.FTP_PASS }}
+          local-dir: ./
+          server-dir: /home/ubuntu/hamakathon/backend/
+          port: 21
+          protocol: ftp
+        

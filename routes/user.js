@@ -74,7 +74,7 @@ router.post('/register', async (req, res) => {
             const user = new User({
                 login:req.body.login,
                 hash:sha256(req.body.password),
-                pseudo:req.body.pseudo,
+                pseudo:req.body.login,
                 email:req.body.email
             })
             tools.suc(res, "User Created", await tools.mySaver(user))

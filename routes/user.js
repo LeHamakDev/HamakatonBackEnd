@@ -66,7 +66,7 @@ router.post('/register', async (req, res) => {
     const exUsers = await User.find({ $or: [
         { email: req.body.email },
         { login: req.body.login },
-        { pseudo:req.body.pseudo }
+        { pseudo:req.body.pseudo },
     ]})
     try {
         if (exUsers.length == 0) 
@@ -75,7 +75,8 @@ router.post('/register', async (req, res) => {
                 login:req.body.login,
                 hash:sha256(req.body.password),
                 pseudo:req.body.login,
-                email:req.body.email
+                email:req.body.email,
+                pp:"https://eu.ui-avatars.com/api/?name="+req.body.login.replace(' ', '+')
             })
             tools.suc(res, "User Created", await tools.mySaver(user))
           } else {

@@ -36,6 +36,10 @@ const UserModel = mongoose.Schema({
     role:{
         type:String,
         default:null
+    },
+    pp: {
+        type:String,
+        default:"https://eu.ui-avatars.com/api/?name=John+Doe"
     }
 })
 

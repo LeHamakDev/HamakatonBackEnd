@@ -1,4 +1,4 @@
-name: CI For FrontEnd
+name: CI For backend
 on: [push]
 
 jobs:

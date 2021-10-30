@@ -19,7 +19,7 @@ jobs:
           username: ubuntu
           password: ${{ secrets.FTP_PASS }}
           local-dir: ./
-          server-dir: /home/ubuntu/hamakathon/backend/
+          server-dir: /home/ubuntu/hamakathon/backEnd/
           port: 21
           protocol: ftp
         
